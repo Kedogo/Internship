@@ -1,0 +1,543 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6cdd1506",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import requests\n",
+    "from bs4 import BeautifulSoup\n",
+    "\n",
+    "# URL of the Wikipedia page\n",
+    "url = \"https://en.wikipedia.org/wiki/List_of_most-viewed_YouTube_videos\"\n",
+    "\n",
+    "# Send an HTTP GET request to the URL\n",
+    "response = requests.get(url)\n",
+    "\n",
+    "# Check if the request was successful\n",
+    "if response.status_code == 200:\n",
+    "    # Parse the page content using Beautiful Soup\n",
+    "    soup = BeautifulSoup(response.text, \"html.parser\")\n",
+    "\n",
+    "    # Find the table containing the most viewed videos\n",
+    "    table = soup.find(\"table\", {\"class\": \"wikitable\"})\n",
+    "\n",
+    "    # Initialize empty lists to store the data\n",
+    "    ranks = []\n",
+    "    names = []\n",
+    "    artists = []\n",
+    "    upload_dates = []\n",
+    "    views = []\n",
+    "\n",
+    "    # Iterate through the rows of the table\n",
+    "    for row in table.find_all(\"tr\")[1:]:  # Skip the header row\n",
+    "        columns = row.find_all(\"td\")\n",
+    "        ranks.append(columns[0].text.strip())\n",
+    "        names.append(columns[1].text.strip())\n",
+    "        artists.append(columns[2].text.strip())\n",
+    "        upload_dates.append(columns[3].text.strip())\n",
+    "        views.append(columns[4].text.strip())\n",
+    "\n",
+    "    # Print or process the extracted data as needed\n",
+    "    for rank, name, artist, upload_date, view in zip(ranks, names, artists, upload_dates, views):\n",
+    "        print(f\"Rank: {rank}\")\n",
+    "        print(f\"Name: {name}\")\n",
+    "        print(f\"Artist: {artist}\")\n",
+    "        print(f\"Upload Date: {upload_date}\")\n",
+    "        print(f\"Views: {view}\")\n",
+    "        print()\n",
+    "\n",
+    "else:\n",
+    "    print(\"Failed to retrieve the web page.\")\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c1a30bc9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import requests\n",
+    "from bs4 import BeautifulSoup\n",
+    "\n",
+    "# Step 1: Visit the BCCI website and retrieve the international fixtures page URL\n",
+    "base_url = \"https://www.bcci.tv/\"\n",
+    "response = requests.get(base_url)\n",
+    "\n",
+    "if response.status_code == 200:\n",
+    "    # Parse the page content to find the link to the international fixtures page\n",
+    "    soup = BeautifulSoup(response.text, \"html.parser\")\n",
+    "    fixtures_link = soup.find(\"a\", {\"href\": \"/international/fixtures\"})\n",
+    "\n",
+    "    if fixtures_link:\n",
+    "        fixtures_url = base_url + fixtures_link[\"href\"]\n",
+    "\n",
+    "        # Step 2: Visit the international fixtures page and retrieve fixture details\n",
+    "        response = requests.get(fixtures_url)\n",
+    "        if response.status_code == 200:\n",
+    "            soup = BeautifulSoup(response.text, \"html.parser\")\n",
+    "\n",
+    "            # Find the containers with fixture details\n",
+    "            fixture_containers = soup.find_all(\"div\", {\"class\": \"fixture__info\"})\n",
+    "\n",
+    "            for fixture in fixture_containers:\n",
+    "                # Extract Series, Place, Date, and Time\n",
+    "                series = fixture.find(\"span\", {\"class\": \"fixture__format\"}).text.strip()\n",
+    "                place = fixture.find(\"p\", {\"class\": \"fixture__info__location\"}).text.strip()\n",
+    "                date = fixture.find(\"span\", {\"class\": \"fixture__date\"}).text.strip()\n",
+    "                time = fixture.find(\"span\", {\"class\": \"fixture__time\"}).text.strip()\n",
+    "\n",
+    "                print(\"Series:\", series)\n",
+    "                print(\"Place:\", place)\n",
+    "                print(\"Date:\", date)\n",
+    "                print(\"Time:\", time)\n",
+    "                print()\n",
+    "\n",
+    "    else:\n",
+    "        print(\"International fixtures link not found on the website.\")\n",
+    "else:\n",
+    "    print(\"Failed to retrieve the BCCI website.\")\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b5c23cd3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import requests\n",
+    "from bs4 import BeautifulSoup\n",
+    "\n",
+    "# Step 1: Visit the statisticstimes.com website and retrieve the economy page URL\n",
+    "base_url = \"http://statisticstimes.com/\"\n",
+    "response = requests.get(base_url)\n",
+    "\n",
+    "if response.status_code == 200:\n",
+    "    # Parse the page content to find the link to the economy page\n",
+    "    soup = BeautifulSoup(response.text, \"html.parser\")\n",
+    "    economy_link = soup.find(\"a\", text=\"Economy\")\n",
+    "\n",
+    "    if economy_link:\n",
+    "        economy_url = base_url + economy_link[\"href\"]\n",
+    "\n",
+    "        # Step 2: Visit the economy page and retrieve state-wise GDP details\n",
+    "        response = requests.get(economy_url)\n",
+    "        if response.status_code == 200:\n",
+    "            soup = BeautifulSoup(response.text, \"html.parser\")\n",
+    "\n",
+    "            # Find the table containing state-wise GDP details\n",
+    "            table = soup.find(\"table\", {\"id\": \"table_id\"})\n",
+    "\n",
+    "            if table:\n",
+    "                # Initialize empty lists to store the data\n",
+    "                ranks = []\n",
+    "                states = []\n",
+    "                gsdp_18_19 = []\n",
+    "                gsdp_19_20 = []\n",
+    "                share_18_19 = []\n",
+    "                gdp_billion = []\n",
+    "\n",
+    "                # Extract data from the table\n",
+    "                for row in table.find_all(\"tr\")[1:]:  # Skip the header row\n",
+    "                    columns = row.find_all(\"td\")\n",
+    "                    ranks.append(columns[0].text.strip())\n",
+    "                    states.append(columns[1].text.strip())\n",
+    "                    gsdp_18_19.append(columns[2].text.strip())\n",
+    "                    gsdp_19_20.append(columns[3].text.strip())\n",
+    "                    share_18_19.append(columns[4].text.strip())\n",
+    "                    gdp_billion.append(columns[5].text.strip())\n",
+    "\n",
+    "                # Print or process the extracted data as needed\n",
+    "                for rank, state, g18_19, g19_20, share, gdp in zip(ranks, states, gsdp_18_19, gsdp_19_20, share_18_19, gdp_billion):\n",
+    "                    print(\"Rank:\", rank)\n",
+    "                    print(\"State:\", state)\n",
+    "                    print(\"GSDP(18-19) - at current prices:\", g18_19)\n",
+    "                    print(\"GSDP(19-20) - at current prices:\", g19_20)\n",
+    "                    print(\"Share(18-19):\", share)\n",
+    "                    print(\"GDP($ billion):\", gdp)\n",
+    "                    print()\n",
+    "\n",
+    "            else:\n",
+    "                print(\"Table not found on the economy page.\")\n",
+    "        else:\n",
+    "            print(\"Failed to retrieve the economy page.\")\n",
+    "    else:\n",
+    "        print(\"Economy link not found on the website.\")\n",
+    "else:\n",
+    "    print(\"Failed to retrieve the statisticstimes.com website.\")\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b57609c6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import requests\n",
+    "from bs4 import BeautifulSoup\n",
+    "\n",
+    "# Step 1: Visit the GitHub website and retrieve the trending repositories page URL\n",
+    "base_url = \"https://github.com/\"\n",
+    "response = requests.get(base_url)\n",
+    "\n",
+    "if response.status_code == 200:\n",
+    "    # Parse the page content to find the link to the trending repositories page\n",
+    "    soup = BeautifulSoup(response.text, \"html.parser\")\n",
+    "    explore_menu = soup.find(\"summary\", text=\"Explore\")\n",
+    "    \n",
+    "    if explore_menu:\n",
+    "        trending_option = explore_menu.find_next(\"a\", text=\"Trending\")\n",
+    "\n",
+    "        if trending_option:\n",
+    "            trending_url = base_url + trending_option[\"href\"]\n",
+    "\n",
+    "            # Step 2: Visit the trending repositories page and retrieve repository details\n",
+    "            response = requests.get(trending_url)\n",
+    "\n",
+    "            if response.status_code == 200:\n",
+    "                soup = BeautifulSoup(response.text, \"html.parser\")\n",
+    "\n",
+    "                # Find the list of trending repositories\n",
+    "                repo_list = soup.find_all(\"article\", {\"class\": \"Box-row\"})\n",
+    "\n",
+    "                # Initialize empty lists to store the data\n",
+    "                repo_titles = []\n",
+    "                repo_descriptions = []\n",
+    "                contributors_counts = []\n",
+    "                languages_used = []\n",
+    "\n",
+    "                # Extract data from the list of repositories\n",
+    "                for repo in repo_list:\n",
+    "                    title = repo.find(\"h1\").get_text(strip=True)\n",
+    "                    description = repo.find(\"p\", {\"class\": \"col-9\"}).get_text(strip=True)\n",
+    "                    contributors_count = repo.find(\"a\", {\"class\": \"Link--muted\"}).get_text(strip=True)\n",
+    "                    language = repo.find(\"span\", {\"itemprop\": \"programmingLanguage\"}).get_text(strip=True)\n",
+    "\n",
+    "                    repo_titles.append(title)\n",
+    "                    repo_descriptions.append(description)\n",
+    "                    contributors_counts.append(contributors_count)\n",
+    "                    languages_used.append(language)\n",
+    "\n",
+    "                # Print or process the extracted data as needed\n",
+    "                for title, description, contributors, language in zip(repo_titles, repo_descriptions, contributors_counts, languages_used):\n",
+    "                    print(\"Repository Title:\", title)\n",
+    "                    print(\"Repository Description:\", description)\n",
+    "                    print(\"Contributors Count:\", contributors)\n",
+    "                    print(\"Language Used:\", language)\n",
+    "                    print()\n",
+    "\n",
+    "            else:\n",
+    "                print(\"Failed to retrieve the trending repositories page.\")\n",
+    "        else:\n",
+    "            print(\"Trending option not found in the Explore menu.\")\n",
+    "    else:\n",
+    "        print(\"Explore menu not found on the website.\")\n",
+    "else:\n",
+    "    print(\"Failed to retrieve the GitHub website.\")\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b1cac819",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import requests\n",
+    "from bs4 import BeautifulSoup\n",
+    "\n",
+    "# Step 1: Visit the Billboard website and retrieve the Hot 100 page URL\n",
+    "base_url = \"https://www.billboard.com/\"\n",
+    "response = requests.get(base_url)\n",
+    "\n",
+    "if response.status_code == 200:\n",
+    "    # Parse the page content to find the link to the Hot 100 page\n",
+    "    soup = BeautifulSoup(response.text, \"html.parser\")\n",
+    "    charts_option = soup.find(\"span\", text=\"Charts\")\n",
+    "    \n",
+    "    if charts_option:\n",
+    "        hot_100_link = charts_option.find_next(\"a\", text=\"Hot 100\")\n",
+    "\n",
+    "        if hot_100_link:\n",
+    "            hot_100_url = base_url + hot_100_link[\"href\"]\n",
+    "\n",
+    "            # Step 2: Visit the Hot 100 page and retrieve song details\n",
+    "            response = requests.get(hot_100_url)\n",
+    "\n",
+    "            if response.status_code == 200:\n",
+    "                soup = BeautifulSoup(response.text, \"html.parser\")\n",
+    "\n",
+    "                # Find the list of top 100 songs\n",
+    "                song_list = soup.find_all(\"li\", {\"class\": \"ye-chart-item\"})\n",
+    "\n",
+    "                # Initialize empty lists to store the data\n",
+    "                song_names = []\n",
+    "                artist_names = []\n",
+    "                last_week_ranks = []\n",
+    "                peak_ranks = []\n",
+    "                weeks_on_board = []\n",
+    "\n",
+    "                # Extract data from the list of songs\n",
+    "                for song in song_list:\n",
+    "                    song_name = song.find(\"span\", {\"class\": \"ye-chart-item__title-text\"}).get_text(strip=True)\n",
+    "                    artist_name = song.find(\"span\", {\"class\": \"ye-chart-item__artist\"}).get_text(strip=True)\n",
+    "                    last_week_rank = song.find(\"div\", {\"class\": \"ye-chart-item__last-week\"}).get_text(strip=True)\n",
+    "                    peak_rank = song.find(\"div\", {\"class\": \"ye-chart-item__weeks-at-one\"}).get_text(strip=True)\n",
+    "                    weeks_on_board = song.find(\"div\", {\"class\": \"ye-chart-item__weeks-on-board\"}).get_text(strip=True)\n",
+    "\n",
+    "                    song_names.append(song_name)\n",
+    "                    artist_names.append(artist_name)\n",
+    "                    last_week_ranks.append(last_week_rank)\n",
+    "                    peak_ranks.append(peak_rank)\n",
+    "                    weeks_on_board.append(weeks_on_board)\n",
+    "\n",
+    "                # Print or process the extracted data as needed\n",
+    "                for song_name, artist_name, last_week_rank, peak_rank, weeks_on_board in zip(\n",
+    "                    song_names, artist_names, last_week_ranks, peak_ranks, weeks_on_board\n",
+    "                ):\n",
+    "                    print(\"Song Name:\", song_name)\n",
+    "                    print(\"Artist Name:\", artist_name)\n",
+    "                    print(\"Last Week Rank:\", last_week_rank)\n",
+    "                    print(\"Peak Rank:\", peak_rank)\n",
+    "                    print(\"Weeks on Board:\", weeks_on_board)\n",
+    "                    print()\n",
+    "\n",
+    "            else:\n",
+    "                print(\"Failed to retrieve the Hot 100 page.\")\n",
+    "        else:\n",
+    "            print(\"Hot 100 link not found in the Charts section.\")\n",
+    "    else:\n",
+    "        print(\"Charts option not found on the website.\")\n",
+    "else:\n",
+    "    print(\"Failed to retrieve the Billboard website.\")\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7fd0f8e0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import requests\n",
+    "from bs4 import BeautifulSoup\n",
+    "\n",
+    "# URL of the page with the highest selling novels data\n",
+    "url = \"https://www.theguardian.com/news/datablog/2012/aug/09/best-selling-books-all-time-fifty-shades-grey-compare\"\n",
+    "\n",
+    "# Send an HTTP GET request to the URL\n",
+    "response = requests.get(url)\n",
+    "\n",
+    "if response.status_code == 200:\n",
+    "    # Parse the page content using Beautiful Soup\n",
+    "    soup = BeautifulSoup(response.text, \"html.parser\")\n",
+    "\n",
+    "    # Find the table containing the highest selling novels data\n",
+    "    table = soup.find(\"table\")\n",
+    "\n",
+    "    # Initialize empty lists to store the data\n",
+    "    book_names = []\n",
+    "    author_names = []\n",
+    "    volumes_sold = []\n",
+    "    publishers = []\n",
+    "    genres = []\n",
+    "\n",
+    "    # Extract data from the table\n",
+    "    for row in table.find_all(\"tr\")[1:]:  # Skip the header row\n",
+    "        columns = row.find_all(\"td\")\n",
+    "        book_names.append(columns[0].text.strip())\n",
+    "        author_names.append(columns[1].text.strip())\n",
+    "        volumes_sold.append(columns[2].text.strip())\n",
+    "        publishers.append(columns[3].text.strip())\n",
+    "        genres.append(columns[4].text.strip())\n",
+    "\n",
+    "    # Print or process the extracted data as needed\n",
+    "    for book, author, sold, publisher, genre in zip(book_names, author_names, volumes_sold, publishers, genres):\n",
+    "        print(\"Book Name:\", book)\n",
+    "        print(\"Author Name:\", author)\n",
+    "        print(\"Volumes Sold:\", sold)\n",
+    "        print(\"Publisher:\", publisher)\n",
+    "        print(\"Genre:\", genre)\n",
+    "        print()\n",
+    "\n",
+    "else:\n",
+    "    print(\"Failed to retrieve the web page.\")\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "5cd3d9ba",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import requests\n",
+    "from bs4 import BeautifulSoup\n",
+    "\n",
+    "# URL of the page with the most-watched TV series data\n",
+    "url = \"https://www.imdb.com/list/ls095964455/\"\n",
+    "\n",
+    "# Send an HTTP GET request to the URL\n",
+    "response = requests.get(url)\n",
+    "\n",
+    "if response.status_code == 200:\n",
+    "    # Parse the page content using Beautiful Soup\n",
+    "    soup = BeautifulSoup(response.text, \"html.parser\")\n",
+    "\n",
+    "    # Find the list of TV series\n",
+    "    series_list = soup.find(\"div\", {\"class\": \"lister-list\"})\n",
+    "\n",
+    "    # Initialize empty lists to store the data\n",
+    "    series_names = []\n",
+    "    year_spans = []\n",
+    "    genres = []\n",
+    "    run_times = []\n",
+    "    ratings = []\n",
+    "    votes = []\n",
+    "\n",
+    "    # Extract data from the list of TV series\n",
+    "    for series in series_list.find_all(\"div\", {\"class\": \"lister-item-content\"}):\n",
+    "        series_name = series.find(\"h3\").a.text\n",
+    "        series_names.append(series_name)\n",
+    "        \n",
+    "        year_span = series.find(\"span\", {\"class\": \"lister-item-year\"}).text.strip(\"()\").strip()\n",
+    "        year_spans.append(year_span)\n",
+    "        \n",
+    "        genre = series.find(\"span\", {\"class\": \"genre\"}).text.strip()\n",
+    "        genres.append(genre)\n",
+    "        \n",
+    "        run_time = series.find(\"span\", {\"class\": \"runtime\"}).text.strip()\n",
+    "        run_times.append(run_time)\n",
+    "        \n",
+    "        rating = series.find(\"div\", {\"class\": \"ipl-rating-star\"}).text.strip()\n",
+    "        ratings.append(rating)\n",
+    "        \n",
+    "        vote = series.find(\"span\", {\"name\": \"rk\"}).text.strip()\n",
+    "        votes.append(vote)\n",
+    "\n",
+    "    # Print or process the extracted data as needed\n",
+    "    for name, year, genre, run_time, rating, vote in zip(series_names, year_spans, genres, run_times, ratings, votes):\n",
+    "        print(\"Name:\", name)\n",
+    "        print(\"Year Span:\", year)\n",
+    "        print(\"Genre:\", genre)\n",
+    "        print(\"Run Time:\", run_time)\n",
+    "        print(\"Rating:\", rating)\n",
+    "        print(\"Votes:\", vote)\n",
+    "        print()\n",
+    "\n",
+    "else:\n",
+    "    print(\"Failed to retrieve the web page.\")\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b341bee3",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.10.9"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
+import requests
+from bs4 import BeautifulSoup
+
+# Step 1: Visit the UCI Machine Learning Repository website and retrieve the "Show All Dataset" page URL
+base_url = "https://archive.ics.uci.edu/"
+all_datasets_url = base_url + "ml/datasets.php"
+
+response = requests.get(all_datasets_url)
+
+if response.status_code == 200:
+    # Parse the page content to find links to individual dataset pages
+    soup = BeautifulSoup(response.text, "html.parser")
+    dataset_links = soup.find_all("a", {"href": True, "title": True, "class": "dataset-name"})
+
+    # Initialize empty lists to store dataset details
+    dataset_names = []
+    data_types = []
+    tasks = []
+    attribute_types = []
+    num_instances = []
+    num_attributes = []
+    years = []
+
+    # Step 2: Visit each dataset page and extract details
+    for link in dataset_links:
+        dataset_name = link.get_text().strip()
+        dataset_url = base_url + link["href"]
+
+        dataset_response = requests.get(dataset_url)
+
+        if dataset_response.status_code == 200:
+            dataset_soup = BeautifulSoup(dataset_response.text, "html.parser")
+
+            # Extract dataset details from the dataset page
+            table = dataset_soup.find("table", {"border": "1"})
+
+            if table:
+                rows = table.find_all("tr")
+
+                data_type = rows[0].find_all("td")[1].get_text().strip()
+                task = rows[1].find_all("td")[1].get_text().strip()
+                attribute_type = rows[2].find_all("td")[1].get_text().strip()
+                num_instance = rows[3].find_all("td")[1].get_text().strip()
+                num_attribute = rows[4].find_all("td")[1].get_text().strip()
+                year = rows[5].find_all("td")[1].get_text().strip()
+
+                # Append the details to the respective lists
+                dataset_names.append(dataset_name)
+                data_types.append(data_type)
+                tasks.append(task)
+                attribute_types.append(attribute_type)
+                num_instances.append(num_instance)
+                num_attributes.append(num_attribute)
+                years.append(year)
+
+    # Print or process the extracted dataset details
+    for i in range(len(dataset_names)):
+        print("Dataset Name:", dataset_names[i])
+        print("Data Type:", data_types[i])
+        print("Task:", tasks[i])
+        print("Attribute Type:", attribute_types[i])
+        print("No. of Instances:", num_instances[i])
+        print("No. of Attributes:", num_attributes[i])
+        print("Year:", years[i])
+        print()
+
+else:
+    print("Failed to retrieve the UCI Machine Learning Repository website.")
+
